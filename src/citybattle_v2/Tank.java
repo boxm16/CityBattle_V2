@@ -55,8 +55,8 @@ public class Tank {
     public Tank(String type, int X, int Y) {
         this.TYPE = type;
         TANK_NUMBER = serialNumber++;
-        TANK_LENGTH = 36;
-        TANK_WIDTH = 36;
+        TANK_LENGTH = 37;
+        TANK_WIDTH = 37;
         this.X = X;//those are starting positions on battleField
         this.Y = Y;
         randomGenerator = new Random();
@@ -247,8 +247,8 @@ public class Tank {
 
     private boolean canGoSouth() {
         if (Y < BattleField.matrix.length - 1 - 40) {
-            for (int a = X; a < X + 36; a++) {
-                Particle particle = BattleField.matrix[a][Y + 37];
+            for (int a = X; a < X + TANK_WIDTH; a++) {
+                Particle particle = BattleField.matrix[a][Y + TANK_LENGTH+1];
                 if (particle != null) {
                     return false;
                 }
@@ -261,7 +261,7 @@ public class Tank {
 
     private boolean canGoNorth() {
         if (Y > 0) {
-            for (int a = X; a < X + 36; a++) {
+            for (int a = X; a < X + TANK_LENGTH; a++) {
                 Particle particle = BattleField.matrix[a][Y - 1];
                 if (particle != null) {
                     return false;
@@ -274,9 +274,9 @@ public class Tank {
     }
 
     private boolean canGoEast() {
-        if (X < BattleField.matrix[0].length - 36 - 1) {
+        if (X < BattleField.matrix[0].length - TANK_WIDTH - 1) {
             for (int a = Y; a < Y + 36; a++) {
-                Particle particle = BattleField.matrix[X + 37][a];
+                Particle particle = BattleField.matrix[X + TANK_WIDTH+1][a];
                 if (particle != null) {
                     return false;
                 }
@@ -289,7 +289,7 @@ public class Tank {
 
     private boolean canGoWest() {
         if (X > 0) {
-            for (int a = Y; a < Y + 36; a++) {
+            for (int a = Y; a < Y + TANK_LENGTH; a++) {
                 Particle particle = BattleField.matrix[X - 1][a];
                 if (particle != null) {
                     return false;
