@@ -13,7 +13,6 @@ import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
-import javax.swing.Timer;
 
 /**
  *
@@ -32,7 +31,7 @@ public class Shell {
     private int X, Y;//positions on BattleFiled(matrix)
     private BufferedImage explosionAnimImg;
     protected Direction direction;
-    private Timer deleteBlast;
+
     private boolean bigExplosion;
     private int explosionTime;
 
@@ -105,8 +104,6 @@ public class Shell {
     private void shootNorth() {
         bigExplosion = false;
         while (Y >= 0) {//till it reaches north edge of battlefield
-            Particle particle = new Particle("Shell", SHELL_NUMBER);
-            BattleField.matrix[X][Y] = particle;
             if (Y < fireRange) {
                 break;
             }
@@ -143,32 +140,12 @@ public class Shell {
     }
 
     private void explode(int X, int Y, boolean bigExplosion) {
-
-        int explosionPower = 1;
+        int explosionPower = 20;
         if (bigExplosion) {
-            explosionPower = 12;
+            explosionPower = 100;
         }
 
-        Animation expAnim = new Animation(explosionAnimImg, 134, 134, explosionPower, 45, false, X - 65, Y - 70, 1);
+        Animation expAnim = new Animation(explosionAnimImg, 134, 134, explosionPower, 45, false, X - 65, Y - 70, 1, explosionPower);
         BattleField.explosionsList.put(SHELL_NUMBER, expAnim);
-        if (bigExplosion) {
-            explosionTime = 1000;
-        } else {
-            explosionTime = 200;
-        }
-        deleteBlast = new Timer(explosionTime, new DeleteBlust());
-        deleteBlast.start();
-    }
-
-    class DeleteBlust implements ActionListener {
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            // removing explosion from the list.
-            BattleField.explosionsList.remove(SHELL_NUMBER);
-           deleteBlast.stop();
-             deleteBlast = null;
-        }
-
     }
 }

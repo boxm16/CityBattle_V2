@@ -44,7 +44,7 @@ public class BattleField extends JPanel {
         }
      
 //------------------this is for matrix painting
-         for (int a = 0; a < WIDTH; a++) {
+     /*    for (int a = 0; a < WIDTH; a++) {
             for (int b = 0; b < HEIGHT; b++) {
                 Particle particle = matrix[a][b];
                 if (particle != null) {
@@ -58,7 +58,7 @@ public class BattleField extends JPanel {
                     }
                 }
             }
-        }
+        }*/
         //------------for animation(explosion and so on)
         Graphics2D g2d = (Graphics2D) g;
         Draw(g2d);

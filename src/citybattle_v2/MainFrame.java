@@ -12,6 +12,8 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -156,7 +158,7 @@ public class MainFrame extends javax.swing.JFrame {
 
     private void init() {
         //BattleField needs to be painted all the time
-        battleFieldPainter = new Timer(1, new BattleFieldPainter());
+        battleFieldPainter = new Timer(3, new BattleFieldPainter());
         battleFieldPainter.start();
     }
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -176,7 +178,7 @@ public class MainFrame extends javax.swing.JFrame {
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         battleField.myNewTank();
-        
+
     }//GEN-LAST:event_jButton4ActionPerformed
 
     /**
@@ -229,6 +231,21 @@ public class MainFrame extends javax.swing.JFrame {
         @Override
         public void actionPerformed(ActionEvent e) {
             battleFieldPanel.repaint();
+            for (Tank tank : BattleField.tanksOnField.values()) {
+                tank.tik();
+            }
+
+            Iterator it = BattleField.explosionsList.entrySet().iterator();
+            while (it.hasNext()) {
+
+                Map.Entry pair = (Map.Entry) it.next();
+                Animation animation = (Animation) pair.getValue();
+                if (animation.getExplosionPower() == 1) {
+                    it.remove();// avoids a ConcurrentModificationException
+                } else {
+                    animation.reduceExplosionPower();
+                }
+            }
         }
     }
 }

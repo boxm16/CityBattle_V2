@@ -27,14 +27,24 @@ public class MyTank extends Tank {
     }
 
     @Override
-    protected void startEngine() {
-        engine = new Timer(10, new TankEngine());
-        engine.start();
+    protected void startMoving() {
+        clutch = true;
+
     }
 
     @Override
-    protected void stopEngine() {
-        engine.stop();
+    protected void stopMoving() {
+        clutch = false;
+    }
+
+    public void tik() {
+        tik = tik + 1;
+        if (tik == speed) {
+            if (clutch) {
+                move();
+            }
+            tik = 0;
+        }
     }
 
     @Override
@@ -49,25 +59,25 @@ public class MyTank extends Tank {
 
         @Override
         public boolean dispatchKeyEvent(KeyEvent e) {
-            if (engine != null) {
+            if (true) {
                 if (e.getID() == KeyEvent.KEY_PRESSED) {
 
                     if (e.getKeyCode() == KeyEvent.VK_NUMPAD8) {
                         direction = Direction.NORTH;
                         n_key = true;
-                        engine.start();
+                        startMoving();
                     } else if (e.getKeyCode() == KeyEvent.VK_NUMPAD5) {
                         direction = Direction.SOUTH;
                         s_key = true;
-                        engine.start();
+                        startMoving();
                     } else if (e.getKeyCode() == KeyEvent.VK_NUMPAD4) {
                         direction = Direction.WEST;
                         w_key = true;
-                        engine.start();
+                        startMoving();
                     } else if (e.getKeyCode() == KeyEvent.VK_NUMPAD6) {
                         direction = Direction.EAST;
                         e_key = true;
-                        engine.start();
+                        startMoving();
                     } else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
                         fire();
                     }
@@ -88,7 +98,7 @@ public class MyTank extends Tank {
                         e_key = false;
                     }
                     if (!s_key & !n_key & !e_key & !w_key) {
-                        engine.stop();
+                        stopMoving();
                     }
 
                 }

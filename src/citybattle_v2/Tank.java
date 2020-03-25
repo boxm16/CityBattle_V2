@@ -26,6 +26,9 @@ import javax.swing.Timer;
  */
 public class Tank {
 
+    protected int tik;
+    private int directionTik;
+    protected boolean clutch;
     private final String TYPE;
     private static int serialNumber = 0;
     private final int TANK_NUMBER;
@@ -33,7 +36,7 @@ public class Tank {
     private final int TANK_WIDTH;
     private final int directionSwitchPeriod;
     private int armour;
-    private int speed;
+    protected int speed;
     private ArrayList<Particle> hull;
     protected int barrel[];
     private int X, Y;//positions on BattleFiled(matrix)
@@ -42,9 +45,9 @@ public class Tank {
     private BufferedImage imageNorth, imageSouth, imageEast, imageWest;
     private HashMap<String, BufferedImage> directionSwitchGear;//this is directions switching gear-switcher
     private Timer directionSwitchTimer;
-    protected Timer engine;
+
     private int shellRechargeTime;
-    private Timer shellRechargeGear;
+
     private Random randomGenerator;
     protected Direction direction;
 
@@ -53,6 +56,7 @@ public class Tank {
     }
 
     public Tank(String type, int X, int Y) {
+        tik = 0;
         this.TYPE = type;
         TANK_NUMBER = serialNumber++;
         TANK_LENGTH = 36;
@@ -63,7 +67,7 @@ public class Tank {
         hull = createHull();
         barrel = new int[2];
         directionSwitchGear = new HashMap();
-        directionSwitchPeriod = 3 * 1000;//3 seconds
+        directionSwitchPeriod = 1000;//3 seconds
         if (TYPE.equals("T1")) {
             createT1();
         }
@@ -75,8 +79,8 @@ public class Tank {
         }
 
         placeTankOnBattleField();
-        engine = new Timer(speed, new TankEngine());
-        startEngine();
+        // engine = new Timer(speed, new TankEngine());
+        startMoving();
     }
 
     //Setters getters
@@ -147,7 +151,7 @@ public class Tank {
     }
 
     private void createT2() {
-        speed = 3;
+        speed = 2;
         armour = 3;
         shellRechargeTime = 2000;
         try {
@@ -184,23 +188,33 @@ public class Tank {
             BattleField.matrix[X + particle.getX()][Y + particle.getY()] = particle;
         }
     }
+//this thing make tank move, tik come from timer in MainFrame 
 
-    protected void startEngine() {
-        engine.start();
-        startDirectionSwitcher();
+    public void tik() {
+        tik = tik + 1;
+        directionTik = directionTik + 1;
+        if (tik == speed && clutch) {
+            tik = 0;
+            move();
+        }
+        if (directionTik == directionSwitchPeriod) {
+            directionTik = 0;
+            turn();
+        }
+
     }
 
-    protected void stopEngine() {
-        engine.stop();
+    protected void startMoving() {
+        clutch = true;
+
+    }
+
+    protected void stopMoving() {
+        clutch = false;
         directionSwitchTimer.stop();
     }
 
-    private void startDirectionSwitcher() {
-        directionSwitchTimer = new Timer(directionSwitchPeriod, new DirectionSwitchDispatcher());
-        directionSwitchTimer.start();
-    }
 // turning
-
     private void turnSouth() {
         image = directionSwitchGear.get("South");//turning tank to south
         barrel[0] = X + (TANK_WIDTH - 1) / 2;
@@ -333,57 +347,50 @@ public class Tank {
     }
 
     //start classes
-    protected class TankEngine implements ActionListener {
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if (direction == Direction.SOUTH) {
-                turnSouth();
-                moveSouth();
-            }
-            if (direction == Direction.NORTH) {
-                turnNorth();
-                moveNorth();
-            }
-            if (direction == Direction.EAST) {
-                turnEast();
-                moveEast();
-            }
-            if (direction == Direction.WEST) {
-                turnWest();
-                moveWest();
-            }
+    protected void move() {
+        if (direction == Direction.SOUTH) {
+            turnSouth();
+            moveSouth();
+        }
+        if (direction == Direction.NORTH) {
+            turnNorth();
+            moveNorth();
+        }
+        if (direction == Direction.EAST) {
+            turnEast();
+            moveEast();
+        }
+        if (direction == Direction.WEST) {
+            turnWest();
+            moveWest();
         }
     }
 
-    class DirectionSwitchDispatcher implements ActionListener {
+    private void turn() {
+        Random randomGenerator = new Random();
+        int randomDirection = randomGenerator.nextInt(6);
+        if (randomDirection == 0) {
+            direction = Direction.SOUTH;
 
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            Random randomGenerator = new Random();
-            int randomDirection = randomGenerator.nextInt(6);
-            if (randomDirection == 0) {
-                direction = Direction.SOUTH;
+        }
+        if (randomDirection == 1) {
+            direction = Direction.NORTH;
 
-            }
-            if (randomDirection == 1) {
-                direction = Direction.NORTH;
+        }
+        if (randomDirection == 2) {
+            direction = Direction.EAST;
 
-            }
-            if (randomDirection == 2) {
-                direction = Direction.EAST;
-
-            }
-            if (randomDirection == 3) {
-                direction = Direction.WEST;
-            }
-            // trend to south, towards the goal
-            if (randomDirection == 4) {
-                direction = Direction.SOUTH;
-            }
-            if (randomDirection == 5) {
-                direction = Direction.SOUTH;
-            }
+        }
+        if (randomDirection == 3) {
+            direction = Direction.WEST;
+        }
+        // trend to south, towards the goal
+        if (randomDirection == 4) {
+            direction = Direction.SOUTH;
+        }
+        if (randomDirection == 5) {
+            direction = Direction.SOUTH;
         }
     }
+
 }

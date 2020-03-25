@@ -62,6 +62,8 @@ public class Animation {
      */
     public boolean active;
 
+    private int explosionPower;
+
     // In milliseconds. How long to wait before starting the animation and displaying it?
     private long showDelay;
 
@@ -84,7 +86,7 @@ public class Animation {
      * @param showDelay In milliseconds. How long to wait before starting the
      * animation and displaying it?
      */
-    public Animation(BufferedImage animImage, int frameWidth, int frameHeight, int numberOfFrames, long frameTime, boolean loop, int x, int y, long showDelay) {
+    public Animation(BufferedImage animImage, int frameWidth, int frameHeight, int numberOfFrames, long frameTime, boolean loop, int x, int y, long showDelay, int explosionPower) {
         this.animImage = animImage;
         this.frameWidth = frameWidth;
         this.frameHeight = frameHeight;
@@ -96,7 +98,7 @@ public class Animation {
         this.y = y;
 
         this.showDelay = showDelay;
-
+        this.explosionPower = explosionPower;
         timeOfAnimationCration = System.currentTimeMillis();
 
         startingXOfFrameInImage = 0;
@@ -108,6 +110,14 @@ public class Animation {
         active = true;
 
         animationNumber = serialNumber++;
+    }
+
+    public int getExplosionPower() {
+        return explosionPower;
+    }
+
+    public void reduceExplosionPower() {
+        explosionPower = explosionPower - 1;
     }
 
     public int getAnimationNumber() {
