@@ -37,6 +37,13 @@ public class MyTank extends Tank {
         engine.stop();
     }
 
+    @Override
+    protected void fire() {
+
+        Shell shell = new Shell("S2");
+        shell.fire(barrel, direction);
+    }
+
     //----key listener--
     private class MyDispatcher implements KeyEventDispatcher {
 
@@ -62,7 +69,7 @@ public class MyTank extends Tank {
                         e_key = true;
                         engine.start();
                     } else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-                        //fire();
+                        fire();
                     }
 
                 }

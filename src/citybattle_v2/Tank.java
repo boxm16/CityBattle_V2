@@ -35,7 +35,7 @@ public class Tank {
     private int armour;
     private int speed;
     private ArrayList<Particle> hull;
-    private int barrel[];
+    protected int barrel[];
     private int X, Y;//positions on BattleFiled(matrix)
     private Scanner sc = null;
     private BufferedImage image;//this is image painted on BattleField
@@ -55,8 +55,8 @@ public class Tank {
     public Tank(String type, int X, int Y) {
         this.TYPE = type;
         TANK_NUMBER = serialNumber++;
-        TANK_LENGTH = 37;
-        TANK_WIDTH = 37;
+        TANK_LENGTH = 36;
+        TANK_WIDTH = 36;
         this.X = X;//those are starting positions on battleField
         this.Y = Y;
         randomGenerator = new Random();
@@ -108,6 +108,14 @@ public class Tank {
 
         return hull;
     }
+
+    public int getArmour() {
+        return armour;
+    }
+
+    public void setArmour(int armour) {
+        this.armour = armour;
+    }
     //end of setters getters
 
     private ArrayList<Particle> createHull() {
@@ -139,7 +147,7 @@ public class Tank {
     }
 
     private void createT2() {
-        speed = 10;
+        speed = 3;
         armour = 3;
         shellRechargeTime = 2000;
         try {
@@ -163,7 +171,7 @@ public class Tank {
     }
 
     private void createT3() {
-        speed = 20;
+        speed = 10;
         armour = 5;
         shellRechargeTime = 3000;
 
@@ -195,13 +203,13 @@ public class Tank {
 
     private void turnSouth() {
         image = directionSwitchGear.get("South");//turning tank to south
-        barrel[0] = X + (TANK_WIDTH - 1) / 2 + 1;
+        barrel[0] = X + (TANK_WIDTH - 1) / 2;
         barrel[1] = Y + TANK_LENGTH;
     }
 
     private void turnNorth() {
         image = directionSwitchGear.get("North");//turning tank to north
-        barrel[0] = X + (TANK_WIDTH - 1) / 2 + 1;
+        barrel[0] = X + (TANK_WIDTH - 1) / 2;
         barrel[1] = Y;
     }
 
@@ -321,6 +329,10 @@ public class Tank {
         }
     }
 
+    protected void fire() {
+    }
+
+    //start classes
     protected class TankEngine implements ActionListener {
 
         @Override
