@@ -24,7 +24,6 @@ public class MyTank extends Tank {
         super("T2", X, Y);
         KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
         manager.addKeyEventDispatcher(new MyDispatcher());
-
     }
 
     @Override

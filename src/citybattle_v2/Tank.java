@@ -35,8 +35,8 @@ public class Tank {
     private int armour;
     private int speed;
     private ArrayList<Particle> hull;
+    private int barrel[];
     private int X, Y;//positions on BattleFiled(matrix)
-    private File file;
     private Scanner sc = null;
     private BufferedImage image;//this is image painted on BattleField
     private BufferedImage imageNorth, imageSouth, imageEast, imageWest;
@@ -61,15 +61,16 @@ public class Tank {
         this.Y = Y;
         randomGenerator = new Random();
         hull = createHull();
+        barrel = new int[2];
         directionSwitchGear = new HashMap();
         directionSwitchPeriod = 3 * 1000;//3 seconds
-        if (type.equals("T1")) {
+        if (TYPE.equals("T1")) {
             createT1();
         }
-        if (type.equals("T2")) {
+        if (TYPE.equals("T2")) {
             createT2();
         }
-        if (type.equals("T3")) {
+        if (TYPE.equals("T3")) {
             createT3();
         }
 
@@ -190,9 +191,33 @@ public class Tank {
         directionSwitchTimer = new Timer(directionSwitchPeriod, new DirectionSwitchDispatcher());
         directionSwitchTimer.start();
     }
+// turning
+
+    private void turnSouth() {
+        image = directionSwitchGear.get("South");//turning tank to south
+        barrel[0] = X + (TANK_WIDTH - 1) / 2 + 1;
+        barrel[1] = Y + TANK_LENGTH;
+    }
+
+    private void turnNorth() {
+        image = directionSwitchGear.get("North");//turning tank to north
+        barrel[0] = X + (TANK_WIDTH - 1) / 2 + 1;
+        barrel[1] = Y;
+    }
+
+    private void turnEast() {
+        image = directionSwitchGear.get("East");//turning tank to north
+        barrel[0] = X + TANK_LENGTH;
+        barrel[1] = Y + (TANK_WIDTH - 1) / 2 + 1;;
+    }
+
+    private void turnWest() {
+        image = directionSwitchGear.get("West");//turning tank to north
+        barrel[0] = X;
+        barrel[1] = Y + (TANK_WIDTH - 1) / 2 + 1;;
+    }
 
     private void moveSouth() {
-        image = directionSwitchGear.get("South");//turning tank to south
 
         if (canGoSouth()) {
 
@@ -206,11 +231,9 @@ public class Tank {
     }
 
     private void moveNorth() {
-        image = directionSwitchGear.get("North");//turning tank to south
-
         if (canGoNorth()) {
             Y--;
-            for (int a = 0;a<hull.size(); a++) {
+            for (int a = 0; a < hull.size(); a++) {
                 Particle particle = hull.get(a);
                 BattleField.matrix[X + particle.getX()][Y + particle.getY()] = particle;
                 BattleField.matrix[X + particle.getX()][Y + 1 + particle.getY()] = null;
@@ -219,7 +242,6 @@ public class Tank {
     }
 
     private void moveEast() {
-        image = directionSwitchGear.get("East");//turning tank to south
 
         if (canGoEast()) {//matrix.leng width of "baatlefield", 36-width of tank hull(its square 36x36)
             X++;
@@ -232,8 +254,6 @@ public class Tank {
     }
 
     private void moveWest() {
-        image = directionSwitchGear.get("West");//turning tank to south
-
         if (canGoWest()) {
             X--;
             for (int a = 0; a < hull.size(); a++) {
@@ -248,7 +268,7 @@ public class Tank {
     private boolean canGoSouth() {
         if (Y < BattleField.matrix.length - 1 - 40) {
             for (int a = X; a < X + TANK_WIDTH; a++) {
-                Particle particle = BattleField.matrix[a][Y + TANK_LENGTH+1];
+                Particle particle = BattleField.matrix[a][Y + TANK_LENGTH + 1];
                 if (particle != null) {
                     return false;
                 }
@@ -276,7 +296,7 @@ public class Tank {
     private boolean canGoEast() {
         if (X < BattleField.matrix[0].length - TANK_WIDTH - 1) {
             for (int a = Y; a < Y + 36; a++) {
-                Particle particle = BattleField.matrix[X + TANK_WIDTH+1][a];
+                Particle particle = BattleField.matrix[X + TANK_WIDTH + 1][a];
                 if (particle != null) {
                     return false;
                 }
@@ -306,19 +326,19 @@ public class Tank {
         @Override
         public void actionPerformed(ActionEvent e) {
             if (direction == Direction.SOUTH) {
-
+                turnSouth();
                 moveSouth();
             }
             if (direction == Direction.NORTH) {
-
+                turnNorth();
                 moveNorth();
             }
             if (direction == Direction.EAST) {
-
+                turnEast();
                 moveEast();
             }
             if (direction == Direction.WEST) {
-
+                turnWest();
                 moveWest();
             }
         }
