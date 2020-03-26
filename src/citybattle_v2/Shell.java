@@ -5,14 +5,7 @@
  */
 package citybattle_v2;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.net.URL;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.imageio.ImageIO;
 
 /**
  *
@@ -20,30 +13,23 @@ import javax.imageio.ImageIO;
  */
 public class Shell {
 
+    private String target;
     private final String TYPE;
     private static int serialNumber = 0;
     private final int SHELL_NUMBER;
-    private final int SHELL_LENGTH;
-    private final int SHELL_WIDTH;
     private int shellDamagePower;
     private int shellRange;
     private int fireRange;
     private int X, Y;//positions on BattleFiled(matrix)
-    private BufferedImage explosionAnimImg;
-    protected Direction direction;
-
+    private final BufferedImage explosionAnimImg;
     private boolean bigExplosion;
-    private int explosionTime;
 
-    protected enum Direction {
-        SOUTH, NORTH, EAST, WEST
-    }
-
-    public Shell(String type) {
+    public Shell(String type, String target, BufferedImage explosionAnimImg) {
+        this.target = target;
         this.TYPE = type;
         SHELL_NUMBER = serialNumber++;
-        SHELL_LENGTH = 10;
-        SHELL_WIDTH = 1;
+
+        this.explosionAnimImg = explosionAnimImg;
         if (TYPE.equals("S1")) {
             createS1();
         }
@@ -54,15 +40,10 @@ public class Shell {
             createS3();
         }
 
-        //load explosion image form file
-        try {
-            // Imege of explosion animation.
-            URL explosionAnimImgUrl = this.getClass().getResource("/citybattle_v2/resources/images/explosion_anim.png");
-            explosionAnimImg = ImageIO.read(explosionAnimImgUrl);
-        } catch (IOException ex) {
-            Logger.getLogger(Shell.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    }
 
+    public void setTarge(String target) {
+        this.target = target;
     }
 
     private void createS1() {
@@ -71,7 +52,7 @@ public class Shell {
 
     private void createS2() {
         shellDamagePower = 2;
-        shellRange = 600;
+        shellRange = 500;
     }
 
     private void createS3() {
@@ -81,21 +62,17 @@ public class Shell {
     void fire(int[] barrel, Tank.Direction direction) {
         X = barrel[0];
         Y = barrel[1];
-        fireRange = Y - shellRange;
+
         if (direction == Tank.Direction.NORTH) {
-            this.direction = Direction.NORTH;
             shootNorth();
         }
         if (direction == Tank.Direction.SOUTH) {
-            this.direction = Direction.SOUTH;
             shootSouth();
         }
         if (direction == Tank.Direction.EAST) {
-            this.direction = Direction.EAST;
             shootEast();
         }
         if (direction == Tank.Direction.WEST) {
-            this.direction = Direction.WEST;
             shootWest();
         }
 
@@ -103,6 +80,7 @@ public class Shell {
 
     private void shootNorth() {
         bigExplosion = false;
+        fireRange = Y - shellRange;
         while (Y >= 0) {//till it reaches north edge of battlefield
             if (Y < fireRange) {
                 break;
@@ -111,15 +89,18 @@ public class Shell {
             if (Y > 0) {
                 Particle p1 = BattleField.matrix[X][Y - 1];
                 if (p1 != null) {
-                    if (p1.getName().equals("Tank")) {
+                    if (p1.getName().equals(target)) {
                         Tank tank = BattleField.tanksOnField.get(p1.getStamp());
                         if (tank.getArmour() <= shellDamagePower) {
                             bigExplosion = true;
+                            tank.destroyTank();
+                           
                         } else {
                             tank.setArmour(tank.getArmour() - shellDamagePower);
                         }
+                         break;
                     }
-                    break;
+//if i put break here, enemy tank wil hit another enemy tank(but not explode)
                 }
             }
 
@@ -128,15 +109,95 @@ public class Shell {
     }
 
     private void shootSouth() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
+        bigExplosion = false;
+        fireRange = Y + shellRange;
+        while (Y <= BattleField.matrix.length - 1) {//till it reaches north edge of battlefield
+            if (Y > fireRange) {
+                break;
+            }
+            Y++;
+            if (Y < BattleField.matrix.length - 1) {
+                Particle p1 = BattleField.matrix[X][Y + 1];
+                if (p1 != null) {
+                    if (p1.getName().equals(target)) {
+
+                        Tank tank = BattleField.tanksOnField.get(p1.getStamp());
+                        if (tank.getArmour() <= shellDamagePower) {
+                            bigExplosion = true;
+                            tank.destroyTank();
+                           
+                        } else {
+                            tank.setArmour(tank.getArmour() - shellDamagePower);
+                        }
+                         break;
+                    }
+//if i put break here, enemy tank wil hit another enemy tank(but not explode)
+                }
+            }
+
+        }
+        explode(X, Y, bigExplosion);
     }
 
     private void shootEast() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        bigExplosion = false;
+        fireRange = X + shellRange;
+        while (X <= BattleField.matrix[0].length - 1) {//till it reaches north edge of battlefield
+            if (X > fireRange) {
+                break;
+            }
+            X++;
+            if (X < BattleField.matrix.length - 1) {
+                Particle p1 = BattleField.matrix[X + 1][Y];
+                if (p1 != null) {
+                    if (p1.getName().equals(target)) {
+                        Tank tank = BattleField.tanksOnField.get(p1.getStamp());
+                        if (tank.getArmour() <= shellDamagePower) {
+                            bigExplosion = true;
+                            tank.destroyTank();
+
+                        } else {
+                            tank.setArmour(tank.getArmour() - shellDamagePower);
+                        }
+                        break;
+                    }
+//if i put break here, enemy tank wil hit another enemy tank(but not explode)
+                }
+            }
+
+        }
+        explode(X, Y, bigExplosion);
     }
 
     private void shootWest() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        bigExplosion = false;
+        fireRange = X - shellRange;
+        while (X >= 0) {//till it reaches north edge of battlefield
+            if (X < fireRange) {
+                break;
+            }
+            X--;
+            if (X > 0) {
+                Particle p1 = BattleField.matrix[X - 1][Y];
+                if (p1 != null) {
+                    if (p1.getName().equals(target)) {
+                        Tank tank = BattleField.tanksOnField.get(p1.getStamp());
+                        if (tank.getArmour() <= shellDamagePower) {
+                            bigExplosion = true;
+                            tank.destroyTank();
+
+                        } else {
+                            tank.setArmour(tank.getArmour() - shellDamagePower);
+                        }
+                        break;
+                    }
+//if i put break here, enemy tank wil hit another enemy tank(but not explode)
+                }
+            }
+
+        }
+        explode(X, Y, bigExplosion);
     }
 
     private void explode(int X, int Y, boolean bigExplosion) {

@@ -10,6 +10,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 
 import javax.swing.JPanel;
 
@@ -24,6 +25,7 @@ public class BattleField extends JPanel {
     public static Particle matrix[][];
     public static HashMap<Integer, Tank> tanksOnField;
     public static HashMap<Integer, Animation> explosionsList;
+    public static LinkedList<Shell> shells;
 
     public BattleField() {
 
@@ -33,18 +35,21 @@ public class BattleField extends JPanel {
         matrix = new Particle[WIDTH][HEIGHT];
         tanksOnField = new HashMap();
         explosionsList = new HashMap();
+        shells = new LinkedList();
     }
 
 //-------------------------------------------->
     public void paintComponent(Graphics g) {
         //   super.paintComponent(g);
 //----this is for images
-       for (Tank tank : tanksOnField.values()) {
-            g.drawImage(tank.getImage(), tank.getX(), tank.getY(), tank.getTANK_LENGTH(), tank.getTANK_WIDTH(), null);
+        for (Tank tank : tanksOnField.values()) {
+
+            if (tank.getStatus().equals("active")) {
+                g.drawImage(tank.getImage(), tank.getX(), tank.getY(), tank.getTANK_LENGTH(), tank.getTANK_WIDTH(), null);
+            }
         }
-     
 //------------------this is for matrix painting
-     /*    for (int a = 0; a < WIDTH; a++) {
+        /*    for (int a = 0; a < WIDTH; a++) {
             for (int b = 0; b < HEIGHT; b++) {
                 Particle particle = matrix[a][b];
                 if (particle != null) {
@@ -65,13 +70,25 @@ public class BattleField extends JPanel {
 
     }
 
+    int bubu = 0;
+
     void newTank() {
-        Tank tank = new Tank("T2", 0, 0);
+        /*   for (int a = 0; a < 15; a++) {
+            Tank tank = new Tank("T2", a * 50, 0);
+            tanksOnField.put(tank.getTANK_NUMBER(), tank);
+        }
+         */
+
+        Tank tank = new Tank("T2", "EnemyTank", bubu, 0);
         tanksOnField.put(tank.getTANK_NUMBER(), tank);
+        bubu = bubu + 50;
+        if (bubu > 600) {
+            bubu = 0;
+        }
     }
 
     void myNewTank() {
-        MyTank tank = new MyTank("T2", 500, 0);
+        MyTank tank = new MyTank("T2", "MyTank", 500, 600);
         tanksOnField.put(tank.getTANK_NUMBER(), tank);
 
     }

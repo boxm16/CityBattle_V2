@@ -5,12 +5,9 @@
  */
 package citybattle_v2;
 
-import java.awt.Color;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.KeyEvent;
-import javax.swing.JPanel;
-import javax.swing.Timer;
 
 /**
  *
@@ -20,38 +17,27 @@ public class MyTank extends Tank {
 
     private boolean s_key, n_key, w_key, e_key;
 
-    public MyTank(String TYPE, int X, int Y) {
-        super("T2", X, Y);
+    public MyTank(String TYPE, String name, int X, int Y) {
+        super("T2", "MyTank", X, Y);
+
         KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
         manager.addKeyEventDispatcher(new MyDispatcher());
     }
 
-    @Override
-    protected void startMoving() {
-        clutch = true;
-
-    }
-
-    @Override
-    protected void stopMoving() {
-        clutch = false;
-    }
-
     public void tik() {
-        tik = tik + 1;
-        if (tik == speed) {
+        speedTik = speedTik + 1;
+        if (speedTik == speed) {
             if (clutch) {
                 move();
             }
-            tik = 0;
+            speedTik = 0;
         }
     }
 
     @Override
     protected void fire() {
-
-        Shell shell = new Shell("S2");
-        shell.fire(barrel, direction);
+        Shell myShell = new Shell("S2", "EnemyTank", explosionAnimImg);
+        myShell.fire(barrel, direction);
     }
 
     //----key listener--
@@ -59,7 +45,7 @@ public class MyTank extends Tank {
 
         @Override
         public boolean dispatchKeyEvent(KeyEvent e) {
-            if (true) {
+            if (status.equals("active")) {
                 if (e.getID() == KeyEvent.KEY_PRESSED) {
 
                     if (e.getKeyCode() == KeyEvent.VK_NUMPAD8) {

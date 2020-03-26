@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -26,9 +28,12 @@ import javax.swing.Timer;
  */
 public class Tank {
 
-    protected int tik;
+    protected int speedTik;
     private int directionTik;
+    private int fireTik;
     protected boolean clutch;
+    private String name;
+    protected String status;
     private final String TYPE;
     private static int serialNumber = 0;
     private final int TANK_NUMBER;
@@ -43,10 +48,10 @@ public class Tank {
     private Scanner sc = null;
     private BufferedImage image;//this is image painted on BattleField
     private BufferedImage imageNorth, imageSouth, imageEast, imageWest;
+    protected BufferedImage explosionAnimImg;
     private HashMap<String, BufferedImage> directionSwitchGear;//this is directions switching gear-switcher
-    private Timer directionSwitchTimer;
 
-    private int shellRechargeTime;
+    private int rateOfFire;
 
     private Random randomGenerator;
     protected Direction direction;
@@ -55,9 +60,13 @@ public class Tank {
         SOUTH, NORTH, EAST, WEST
     }
 
-    public Tank(String type, int X, int Y) {
-        tik = 0;
+    public Tank(String type, String name, int X, int Y) {
+        speedTik = 0;
+        directionTik = 0;
+        fireTik = 0;
+        this.name = name;
         this.TYPE = type;
+        status = "active";
         TANK_NUMBER = serialNumber++;
         TANK_LENGTH = 36;
         TANK_WIDTH = 36;
@@ -120,21 +129,29 @@ public class Tank {
     public void setArmour(int armour) {
         this.armour = armour;
     }
+
+    public String getTankName() {
+        return name;
+    }
+
+    public String getStatus() {
+        return status;
+    }
     //end of setters getters
 
-    private ArrayList<Particle> createHull() {
+    protected ArrayList<Particle> createHull() {
         hull = new ArrayList();
 
         for (int x = 0; x < TANK_LENGTH; x++) {
             for (int y = 0; y < TANK_WIDTH; y++) {
                 if (y == 0 || y == TANK_WIDTH - 1) {
-                    Particle particle = new Particle("Tank", TANK_NUMBER);
+                    Particle particle = new Particle(name, TANK_NUMBER);
                     particle.setX(x);
                     particle.setY(y);
                     hull.add(particle);
                 } else {
                     if (x == 0 || x == TANK_LENGTH - 1) {
-                        Particle particle = new Particle("Tank", TANK_NUMBER);
+                        Particle particle = new Particle(name, TANK_NUMBER);
                         particle.setX(x);
                         particle.setY(y);
                         hull.add(particle);
@@ -153,7 +170,7 @@ public class Tank {
     private void createT2() {
         speed = 2;
         armour = 3;
-        shellRechargeTime = 2000;
+        rateOfFire = 300;
         try {
             // Imege of tank load.
             URL imageN = this.getClass().getResource("/citybattle_v2/resources/images/T2_NORTH.png");
@@ -164,6 +181,11 @@ public class Tank {
             imageEast = ImageIO.read(imageE);
             URL imageW = this.getClass().getResource("/citybattle_v2/resources/images/T2_WEST.png");
             imageWest = ImageIO.read(imageW);
+            //shell explosion image
+            //i load it here, one time, because it takes resources to load for every explosion different image
+            URL explosionAnimImgUrl = this.getClass().getResource("/citybattle_v2/resources/images/explosion_anim.png");
+            explosionAnimImg = ImageIO.read(explosionAnimImgUrl);
+            //directions gear
             directionSwitchGear.put("North", imageNorth);
             directionSwitchGear.put("South", imageSouth);
             directionSwitchGear.put("East", imageEast);
@@ -177,7 +199,7 @@ public class Tank {
     private void createT3() {
         speed = 10;
         armour = 5;
-        shellRechargeTime = 3000;
+        rateOfFire = 3;
 
     }
 
@@ -191,10 +213,15 @@ public class Tank {
 //this thing make tank move, tik come from timer in MainFrame 
 
     public void tik() {
-        tik = tik + 1;
+        speedTik = speedTik + 1;
         directionTik = directionTik + 1;
-        if (tik == speed && clutch) {
-            tik = 0;
+        fireTik = fireTik + 1;
+        if (fireTik == rateOfFire) {
+            fireTik = 0;
+            fire();
+        }
+        if (speedTik == speed && clutch) {
+            speedTik = 0;
             move();
         }
         if (directionTik == directionSwitchPeriod) {
@@ -206,12 +233,10 @@ public class Tank {
 
     protected void startMoving() {
         clutch = true;
-
     }
 
     protected void stopMoving() {
         clutch = false;
-        directionSwitchTimer.stop();
     }
 
 // turning
@@ -344,6 +369,10 @@ public class Tank {
     }
 
     protected void fire() {
+
+        //Shell shell = BattleField.shells.removeFirst();
+        Shell shell = new Shell("S2", "MyTank", explosionAnimImg);
+        shell.fire(barrel, direction);
     }
 
     //start classes
@@ -391,6 +420,16 @@ public class Tank {
         if (randomDirection == 5) {
             direction = Direction.SOUTH;
         }
+    }
+
+    void destroyTank() {
+        stopMoving();//stop moving
+        //removing all particlas from Battlefield
+        for (Particle particle : hull) {
+            BattleField.matrix[X + particle.getX()][Y + particle.getY()] = null;
+        }
+        status = "destroyed";
+
     }
 
 }

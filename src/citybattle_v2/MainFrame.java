@@ -29,13 +29,20 @@ public class MainFrame extends javax.swing.JFrame {
     Timer battleFieldPainter;
 
     private BattleField battleField;
+ 
 
     public MainFrame() {
+
         initComponents();
         init();
         battleField = new BattleField();
         battleFieldPanel.add(battleField);
         battleFieldPanel.repaint();
+
+        //load explosion image form file
+     
+
+      
 
     }
 
@@ -77,7 +84,7 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
 
-        jButton2.setText("fire");
+        jButton2.setText("SHELL");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton2ActionPerformed(evt);
@@ -163,11 +170,9 @@ public class MainFrame extends javax.swing.JFrame {
     }
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         battleField.newTank();
-
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-
 
     }//GEN-LAST:event_jButton2ActionPerformed
 
@@ -178,7 +183,6 @@ public class MainFrame extends javax.swing.JFrame {
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         battleField.myNewTank();
-
     }//GEN-LAST:event_jButton4ActionPerformed
 
     /**
@@ -231,9 +235,16 @@ public class MainFrame extends javax.swing.JFrame {
         @Override
         public void actionPerformed(ActionEvent e) {
             battleFieldPanel.repaint();
-            for (Tank tank : BattleField.tanksOnField.values()) {
-                tank.tik();
+            //----
+            Iterator tankIt = BattleField.tanksOnField.entrySet().iterator();
+            while (tankIt.hasNext()) {
+                Map.Entry pair = (Map.Entry) tankIt.next();
+                Tank tank = (Tank) pair.getValue();
+                if (tank.getStatus().equals("active")) {
+                    tank.tik();
+                }
             }
+//----
 
             Iterator it = BattleField.explosionsList.entrySet().iterator();
             while (it.hasNext()) {
