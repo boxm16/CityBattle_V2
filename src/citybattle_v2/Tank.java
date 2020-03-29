@@ -5,22 +5,16 @@
  */
 package citybattle_v2;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
-import javax.swing.Timer;
 
 /**
  *
@@ -46,6 +40,7 @@ public class Tank {
     protected int barrel[];
     private int X, Y;//positions on BattleFiled(matrix)
     private Scanner sc = null;
+    private URL imageN, imageS, imageE, imageW;
     private BufferedImage image;//this is image painted on BattleField
     private BufferedImage imageNorth, imageSouth, imageEast, imageWest;
     protected BufferedImage explosionAnimImg;
@@ -56,10 +51,6 @@ public class Tank {
     private Random randomGenerator;
     protected Direction direction;
 
-    protected enum Direction {
-        SOUTH, NORTH, EAST, WEST
-    }
-
     public Tank(String type, String name, int X, int Y) {
         speedTik = 0;
         directionTik = 0;
@@ -68,8 +59,8 @@ public class Tank {
         this.TYPE = type;
         status = "active";
         TANK_NUMBER = serialNumber++;
-        TANK_LENGTH = 36;
-        TANK_WIDTH = 36;
+        TANK_LENGTH = 37;
+        TANK_WIDTH = 37;
         this.X = X;//those are starting positions on battleField
         this.Y = Y;
         randomGenerator = new Random();
@@ -77,6 +68,17 @@ public class Tank {
         barrel = new int[2];
         directionSwitchGear = new HashMap();
         directionSwitchPeriod = 1000;//3 seconds
+
+        //shell explosion image
+        //i load it here, one time, because it takes resources to load for every explosion different image
+        URL explosionAnimImgUrl = this.getClass().getResource("/resources/images/explosion_anim.png");
+        try {
+            explosionAnimImg = ImageIO.read(explosionAnimImgUrl);
+        } catch (IOException ex) {
+            Logger.getLogger(Tank.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        //--
+
         if (TYPE.equals("T1")) {
             createT1();
         }
@@ -86,6 +88,7 @@ public class Tank {
         if (TYPE.equals("T3")) {
             createT3();
         }
+       
 
         placeTankOnBattleField();
         // engine = new Timer(speed, new TankEngine());
@@ -173,18 +176,15 @@ public class Tank {
         rateOfFire = 300;
         try {
             // Imege of tank load.
-            URL imageN = this.getClass().getResource("/citybattle_v2/resources/images/T2_NORTH.png");
+            imageN = this.getClass().getResource("/resources/images/T2_NORTH.png");
             imageNorth = ImageIO.read(imageN);
-            URL imageS = this.getClass().getResource("/citybattle_v2/resources/images/T2_SOUTH.png");
+            imageS = this.getClass().getResource("/resources/images/T2_SOUTH.png");
             imageSouth = ImageIO.read(imageS);
-            URL imageE = this.getClass().getResource("/citybattle_v2/resources/images/T2_EAST.png");
+            imageE = this.getClass().getResource("/resources/images/T2_EAST.png");
             imageEast = ImageIO.read(imageE);
-            URL imageW = this.getClass().getResource("/citybattle_v2/resources/images/T2_WEST.png");
+            imageW = this.getClass().getResource("/resources/images/T2_WEST.png");
             imageWest = ImageIO.read(imageW);
-            //shell explosion image
-            //i load it here, one time, because it takes resources to load for every explosion different image
-            URL explosionAnimImgUrl = this.getClass().getResource("/citybattle_v2/resources/images/explosion_anim.png");
-            explosionAnimImg = ImageIO.read(explosionAnimImgUrl);
+
             //directions gear
             directionSwitchGear.put("North", imageNorth);
             directionSwitchGear.put("South", imageSouth);
@@ -197,9 +197,29 @@ public class Tank {
     }
 
     private void createT3() {
-        speed = 10;
+
+        speed = 5;
         armour = 5;
-        rateOfFire = 3;
+        rateOfFire = 500;
+        try {
+            // Imege of tank load.
+            imageN = this.getClass().getResource("/resources/images/T3-NORTH.png");
+            imageNorth = ImageIO.read(imageN);
+            imageS = this.getClass().getResource("/resources/images/T3-SOUTH.png");
+            imageSouth = ImageIO.read(imageS);
+            imageE = this.getClass().getResource("/resources/images/T3-EAST.png");
+            imageEast = ImageIO.read(imageE);
+            imageW = this.getClass().getResource("/resources/images/T3-WEST.png");
+            imageWest = ImageIO.read(imageW);
+
+            //directions gear
+            directionSwitchGear.put("North", imageNorth);
+            directionSwitchGear.put("South", imageSouth);
+            directionSwitchGear.put("East", imageEast);
+            directionSwitchGear.put("West", imageWest);
+        } catch (IOException ex) {
+            Logger.getLogger(Tank.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
     }
 
@@ -255,7 +275,7 @@ public class Tank {
     private void turnEast() {
         image = directionSwitchGear.get("East");//turning tank to north
         barrel[0] = X + TANK_LENGTH;
-        barrel[1] = Y + (TANK_WIDTH - 1) / 2 + 1;;
+        barrel[1] = Y + (TANK_WIDTH - 1) / 2 + 1;
     }
 
     private void turnWest() {
@@ -371,7 +391,16 @@ public class Tank {
     protected void fire() {
 
         //Shell shell = BattleField.shells.removeFirst();
-        Shell shell = new Shell("S2", "MyTank", explosionAnimImg);
+        String shellType = "S1";
+
+        if (TYPE.equals("T2")) {
+            shellType = "S2";
+        }
+        if (TYPE.equals("T3")) {
+            shellType = "S3";
+        }
+
+        Shell shell = new Shell(shellType, "MyTank", explosionAnimImg);
         shell.fire(barrel, direction);
     }
 
@@ -396,7 +425,7 @@ public class Tank {
     }
 
     private void turn() {
-        Random randomGenerator = new Random();
+        
         int randomDirection = randomGenerator.nextInt(6);
         if (randomDirection == 0) {
             direction = Direction.SOUTH;

@@ -17,7 +17,7 @@ public class MyTank extends Tank {
 
     private boolean s_key, n_key, w_key, e_key;
 
-    public MyTank(String TYPE, String name, int X, int Y) {
+    public MyTank(String TYPE,String name, int X, int Y) {
         super("T2", "MyTank", X, Y);
 
         KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
