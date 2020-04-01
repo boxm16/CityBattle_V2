@@ -32,25 +32,42 @@ public class BattleField extends JPanel {
     public static Particle matrix[][];
     public static HashMap<Integer, Tank> tanksOnField;
     public static HashMap<Integer, Animation> explosionsList;
-    public static HashMap<Integer, Brick> cityWall;
+    public static HashMap<Integer, Block> cityPlan;
     public static LinkedList<Shell> shells;
-    private BufferedImage imageWall;
+    private BufferedImage imageBrick;
+    private BufferedImage imageSteel;
+    private BufferedImage imageWater;
+    public static Base base;
+    private BufferedImage imageBase;
 
     public BattleField() {
 
-        WIDTH = 800;
+        WIDTH = 1000;
         HEIGHT = 800;
         setSize(WIDTH, HEIGHT);
-        setBackground(Color.RED);
+        setBackground(Color.BLACK);
         matrix = new Particle[WIDTH][HEIGHT];
         tanksOnField = new HashMap();
         explosionsList = new HashMap();
-        cityWall = new HashMap();
+        cityPlan = new HashMap();
         shells = new LinkedList();
 //for bricks
         try {
-            URL imageW = this.getClass().getResource("/resources/images/brick.png");
-            imageWall = ImageIO.read(imageW);
+            URL imageB = this.getClass().getResource("/resources/images/Brick.png");
+            imageBrick = ImageIO.read(imageB);
+            URL imageS = this.getClass().getResource("/resources/images/Steel.png");
+            imageSteel = ImageIO.read(imageS);
+            URL imageW = this.getClass().getResource("/resources/images/Water.png");
+            imageWater = ImageIO.read(imageW);
+        } catch (IOException ex) {
+            Logger.getLogger(BattleField.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        //base
+        base = new Base(WIDTH / 2, HEIGHT - 41);
+        try {
+            URL imageB = this.getClass().getResource("/resources/images/Base.png");
+            imageBase = ImageIO.read(imageB);
         } catch (IOException ex) {
             Logger.getLogger(BattleField.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -67,12 +84,22 @@ public class BattleField extends JPanel {
             }
         }
         //this is for bricks images
-        for (Brick brick : cityWall.values()) {
-            if (brick.getStatus().equals("inTheWall")) {
-                g.drawImage(imageWall, brick.getX(), brick.getY(), brick.getLENGTH(), brick.getWIDTH(), null);
+        for (Block block : cityPlan.values()) {
+
+            if (block.getName().equals("Brick") && block.getStatus().equals("inTheWall")) {
+                g.drawImage(imageBrick, block.getX(), block.getY(), block.getLENGTH(), block.getWIDTH(), null);
             }
+            if (block.getName().equals("Steel")) {
+                g.drawImage(imageSteel, block.getX(), block.getY(), block.getLENGTH(), block.getWIDTH(), null);
+            }
+            if (block.getName().equals("Water")) {
+                g.drawImage(imageWater, block.getX(), block.getY(), block.getLENGTH(), block.getWIDTH(), null);
+            }
+          
         }
-        //---
+        if (base.getStatus().equals("active")) {
+            g.drawImage(imageBase, base.getX(), base.getY(), base.getLENGTH(), base.getWIDTH(), null);
+        }   //---
 //------------------this is for matrix painting
         /*   for (int a = 0; a < WIDTH; a++) {
             for (int b = 0; b < HEIGHT; b++) {
@@ -86,7 +113,7 @@ public class BattleField extends JPanel {
                         g.setColor(Color.yellow);
                         g.drawRect(a, b, 1, 1);
                     }
-                    if (particle.getName().equals("Brick---")) {
+                    if (particle.getName().equals("Block---")) {
                         g.setColor(Color.blue);
                         g.drawRect(a, b, 1, 1);
                     }
@@ -100,29 +127,16 @@ public class BattleField extends JPanel {
 
     }
 //-----------
-    int bubu = 0;
 
-    void newTank() {
-        String type = "T2";
-        for (int a = 0; a < 15; a++) {
-            if (a > 4) {
-                type = "T3";
-            }
-            Tank tank = new Tank(type, "EnemyTank", a * 50, 0);
-            tanksOnField.put(tank.getTANK_NUMBER(), tank);
-        }
+    void newTank(String type, int X) {
 
-        /* 
-        Tank tank = new Tank("T2", "EnemyTank", bubu, 0);
+        Tank tank = new Tank(type, "EnemyTank", X * 50, 0);
         tanksOnField.put(tank.getTANK_NUMBER(), tank);
-        bubu = bubu + 50;
-        if (bubu > 600) {
-            bubu = 0;
-        }   */
+
     }
 
     public void myNewTank() {
-        MyTank tank = new MyTank("T2", "MyTank", 750, 750);
+        MyTank tank = new MyTank("T2", 850, 760);
         tanksOnField.put(tank.getTANK_NUMBER(), tank);
 
     }
@@ -139,4 +153,6 @@ public class BattleField extends JPanel {
 
         }
     }
+
+   
 }

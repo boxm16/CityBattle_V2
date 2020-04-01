@@ -23,6 +23,7 @@ public class Shell {
     private int X, Y;//positions on BattleFiled(matrix)
     private final BufferedImage explosionAnimImg;
     private boolean bigExplosion;
+    private boolean baseExplosion;
     private Direction direction;
 
     public Shell(String type, String target, BufferedImage explosionAnimImg) {
@@ -48,7 +49,8 @@ public class Shell {
     }
 
     private void createS1() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        shellDamagePower = 1;
+        shellRange = 300;
     }
 
     private void createS2() {
@@ -97,25 +99,27 @@ public class Shell {
                         hitTank(p1);
                         break;
                     }
-                    if (p1.getName().equals("Brick")) {
-                        hitBrick(p1);
-
+                    if (p1.getName().equals("Brick")||p1.getName().equals("Steel")) {
+                        hitBlock(p1);
                         break;
-
+                    }
+                    if (p1.getName().equals("Base")) {
+                        hitBase();
+                        break;
                     }
 //if i put break here, enemy tank will hit another enemy tank(but not explode)
                 }
             }
 
         }
-        explode(X, Y, bigExplosion);
+        explode(X, Y);
     }
 
     private void shootSouth() {
 
         bigExplosion = false;
         fireRange = Y + shellRange;
-        while (Y <= BattleField.matrix.length - 1) {//till it reaches north edge of battlefield
+        while (Y <= BattleField.matrix[0].length - 1) {//till it reaches north edge of battlefield
             if (Y > fireRange) {
                 break;
             }
@@ -123,7 +127,7 @@ public class Shell {
             //  Particle p = new Particle("Shell", 1);
             //  BattleField.matrix[X][Y] = p;
             Y++;
-            if (Y < BattleField.matrix.length - 2) {
+            if (Y < BattleField.matrix[0].length - 2) {
                 Particle p1 = BattleField.matrix[X][Y];
                 if (p1 != null) {
 
@@ -131,24 +135,26 @@ public class Shell {
                         hitTank(p1);
                         break;
                     }
-                    if (p1.getName().equals("Brick")) {
-                        hitBrick(p1);
-
+                    if (p1.getName().equals("Brick")||p1.getName().equals("Steel")) {
+                        hitBlock(p1);
                         break;
-
+                    }
+                    if (p1.getName().equals("Base")) {
+                        hitBase();
+                        break;
                     }
 //if i put break here, enemy tank wil hit another enemy tank(but not explode)
                 }
             }
 
         }
-        explode(X, Y, bigExplosion);
+        explode(X, Y);
     }
 
     private void shootEast() {
         bigExplosion = false;
         fireRange = X + shellRange;
-        while (X <= BattleField.matrix[0].length - 1) {//till it reaches north edge of battlefield
+        while (X <= BattleField.matrix.length - 1) {//till it reaches north edge of battlefield
             if (X > fireRange) {
                 break;
             }
@@ -163,18 +169,20 @@ public class Shell {
                         hitTank(p1);
                         break;
                     }
-                    if (p1.getName().equals("Brick")) {
-                        hitBrick(p1);
-
+                    if (p1.getName().equals("Brick")||p1.getName().equals("Steel")) {
+                        hitBlock(p1);
                         break;
-
+                    }
+                    if (p1.getName().equals("Base")) {
+                        hitBase();
+                        break;
                     }
 //if i put break here, enemy tank wil hit another enemy tank(but not explode)
                 }
             }
 
         }
-        explode(X, Y, bigExplosion);
+        explode(X, Y);
     }
 
     private void shootWest() {
@@ -195,17 +203,21 @@ public class Shell {
                         hitTank(p1);
                         break;
                     }
-                    if (p1.getName().equals("Brick")) {
-                        hitBrick(p1);
+                    if (p1.getName().equals("Brick")||p1.getName().equals("Steel")) {
+                        hitBlock(p1);
                         break;
-
                     }
+                    if (p1.getName().equals("Base")) {
+                        hitBase();
+                        break;
+                    }
+
 //if i put break here, enemy tank wil hit another enemy tank(but not explode)
                 }
             }
 
         }
-        explode(X, Y, bigExplosion);
+        explode(X, Y);
     }
 
     private void hitTank(Particle particle) {
@@ -219,78 +231,97 @@ public class Shell {
             tank.setArmour(tank.getArmour() - shellDamagePower);
         }
     }
+//its a big method
 
-    private void hitBrick(Particle particle) {
-        Brick brick = BattleField.cityWall.get(particle.getStamp());
-        brick.destroyBrick();
+    private void hitBlock(Particle particle) {
+        Block block = BattleField.cityPlan.get(particle.getStamp());
+        block.destroyBlock();
+
+        //if shellDamage==3
+        if (shellDamagePower == 3) {
+            if (direction == Direction.SOUTH || direction == Direction.NORTH) {
+                if (X < 40 || X > BattleField.matrix.length - 40) {//δηλαδη, this means that tank is near the edge, so it cant destroy 3 brick, onlty 2
+                    shellDamagePower = 2;//so shell will explode with damage power 2, see lower 
+                } else {
+                    Particle particleBlockWest = BattleField.matrix[block.getX() - 1][block.getY()];
+                    Particle particleBlockEast = BattleField.matrix[block.getX() + block.getWIDTH() + 1][block.getY()];
+
+                    if (particleBlockWest != null && particleBlockWest.getName().equals("Brick")) {
+                        Block nextBrick = BattleField.cityPlan.get(particleBlockWest.getStamp());
+                        nextBrick.destroyBlock();
+                    }
+                    if (particleBlockEast != null && particleBlockEast.getName().equals("Brick")) {
+                        Block nextBrick = BattleField.cityPlan.get(particleBlockEast.getStamp());
+                        nextBrick.destroyBlock();
+                    }
+                }
+            }
+            if (direction == Direction.EAST || direction == Direction.WEST) {
+                if (Y < 40 && Y > BattleField.matrix[0].length - 40) {//δηλαδη, this means that tank is near the edge, so it cant destroy 3 brick, onlty 2
+                    shellDamagePower = 2;//so shell will explode with damage power 2, see lower 
+                } else {
+                    Particle particleBlockNorth = BattleField.matrix[block.getX()][block.getY() - 1];
+                    Particle particleBlockSouth = BattleField.matrix[block.getX()][block.getY() + block.getLENGTH() + 1];
+                    if (particleBlockNorth != null && particleBlockNorth.getName().equals("Brick")) {
+                        Block nextBlock = BattleField.cityPlan.get(particleBlockNorth.getStamp());
+                        nextBlock.destroyBlock();
+                    }
+                    if (particleBlockSouth != null && particleBlockSouth.getName().equals("Brick")) {
+                        Block nextBlock = BattleField.cityPlan.get(particleBlockSouth.getStamp());
+                        nextBlock.destroyBlock();
+                    }
+                }
+            }
+        }
         //if shellDamage==2
         if (shellDamagePower == 2) {
             if (direction == Direction.SOUTH || direction == Direction.NORTH) {
                 int hitSpot = particle.getX();
-                Particle nextBrickParticle = null;
-                if (hitSpot < brick.getWIDTH() / 2) {
+                Particle nextBlockParticle = null;
+                if (hitSpot < block.getWIDTH() / 2) {
                     //trying to find next brick on one side
-                    nextBrickParticle = BattleField.matrix[brick.getX() - 1][brick.getY()];
+                    nextBlockParticle = BattleField.matrix[block.getX() - 1][block.getY()];
                 } else {
                     //trying to find next brick on another side
-                    nextBrickParticle = BattleField.matrix[brick.getX() + brick.getLENGTH() + 1][brick.getY()];
+                    nextBlockParticle = BattleField.matrix[block.getX() + block.getLENGTH() + 1][block.getY()];
                 }
-                if (nextBrickParticle != null && nextBrickParticle.getName().equals("Brick")) {
-                    Brick nextBrick = BattleField.cityWall.get(nextBrickParticle.getStamp());
-                    nextBrick.destroyBrick();
+                if (nextBlockParticle != null && nextBlockParticle.getName().equals("Brick")) {
+                    Block nextBrick = BattleField.cityPlan.get(nextBlockParticle.getStamp());
+                    nextBrick.destroyBlock();
                 }
             }
             if (direction == Direction.EAST || direction == Direction.WEST) {
                 int hitSpot = particle.getY();
-                Particle nextBrickParticle = null;
-                if (hitSpot < brick.getLENGTH() / 2) {
+                Particle nextBlockParticle = null;
+                if (hitSpot < block.getLENGTH() / 2) {
                     //trying to find next brick on one side
-                    nextBrickParticle = BattleField.matrix[brick.getX()][brick.getY() - 1];
+                    nextBlockParticle = BattleField.matrix[block.getX()][block.getY() - 1];
                 } else {
                     //trying to find next brick on another side
-                    nextBrickParticle = BattleField.matrix[brick.getX()][brick.getY() + brick.getWIDTH() + 1];
+                    nextBlockParticle = BattleField.matrix[block.getX()][block.getY() + block.getWIDTH() + 1];
                 }
-                if (nextBrickParticle != null && nextBrickParticle.getName().equals("Brick")) {
-                    Brick nextBrick = BattleField.cityWall.get(nextBrickParticle.getStamp());
-                    nextBrick.destroyBrick();
-                }
-            }
-        }
-        //if shellDamage==3
-        if (shellDamagePower == 3) {
-            if (direction == Direction.SOUTH || direction == Direction.NORTH) {
-                Particle particleBrickWest = BattleField.matrix[brick.getX() - 1][brick.getY()];
-                Particle particleBrickEast = BattleField.matrix[brick.getX() + brick.getWIDTH() + 1][brick.getY()];
-
-                if (particleBrickWest != null && particleBrickWest.getName().equals("Brick")) {
-                    Brick nextBrick = BattleField.cityWall.get(particleBrickWest.getStamp());
-                    nextBrick.destroyBrick();
-                }
-                if (particleBrickEast != null && particleBrickEast.getName().equals("Brick")) {
-                    Brick nextBrick = BattleField.cityWall.get(particleBrickEast.getStamp());
-                    nextBrick.destroyBrick();
-                }
-            }
-            if (direction == Direction.EAST || direction == Direction.WEST) {
-                Particle particleBrickNorth = BattleField.matrix[brick.getX()][brick.getY() - 1];
-                Particle particleBrickSouth = BattleField.matrix[brick.getX()][brick.getY() + brick.getLENGTH() + 1];
-                if (particleBrickNorth != null && particleBrickNorth.getName().equals("Brick")) {
-                    Brick nextBrick = BattleField.cityWall.get(particleBrickNorth.getStamp());
-                    nextBrick.destroyBrick();
-                }
-                if (particleBrickSouth != null && particleBrickSouth.getName().equals("Brick")) {
-                    Brick nextBrick = BattleField.cityWall.get(particleBrickSouth.getStamp());
-                    nextBrick.destroyBrick();
+                if (nextBlockParticle != null && nextBlockParticle.getName().equals("Brick")) {
+                    Block nextBlock = BattleField.cityPlan.get(nextBlockParticle.getStamp());
+                    nextBlock.destroyBlock();
                 }
             }
         }
 
     }
 
-    private void explode(int X, int Y, boolean bigExplosion) {
+    private void hitBase() {
+        BattleField.base.destroy();
+        baseExplosion = true;
+    }
+
+    private void explode(int X, int Y) {
         int explosionPower = 20;
         if (bigExplosion) {
             explosionPower = 100;
+        }
+        if (baseExplosion) {
+
+            explosionPower = 200;
         }
 
         Animation expAnim = new Animation(explosionAnimImg, 134, 134, explosionPower, 45, false, X - 65, Y - 70, 1, explosionPower);

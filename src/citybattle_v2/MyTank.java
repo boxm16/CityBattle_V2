@@ -8,6 +8,10 @@ package citybattle_v2;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 
 /**
  *
@@ -17,8 +21,8 @@ public class MyTank extends Tank {
 
     private boolean s_key, n_key, w_key, e_key;
 
-    public MyTank(String TYPE,String name, int X, int Y) {
-        super("T2", "MyTank", X, Y);
+    public MyTank(String TYPE, int X, int Y) {
+        super(TYPE, "MyTank", X, Y);
 
         KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
         manager.addKeyEventDispatcher(new MyDispatcher());
@@ -35,7 +39,29 @@ public class MyTank extends Tank {
     }
 
     @Override
+    protected void createTank() {
+        speed = 2;
+        armour = 3;
+        rateOfFire = 300;
+        try {
+            // Imege of tank load.
+            imageN = this.getClass().getResource("/resources/images/MyTank-NORTH.png");
+            imageNorth = ImageIO.read(imageN);
+            imageS = this.getClass().getResource("/resources/images/MyTank-SOUTH.png");
+            imageSouth = ImageIO.read(imageS);
+            imageE = this.getClass().getResource("/resources/images/MyTank-EAST.png");
+            imageEast = ImageIO.read(imageE);
+            imageW = this.getClass().getResource("/resources/images/MyTank-WEST.png");
+            imageWest = ImageIO.read(imageW);
+
+        } catch (IOException ex) {
+            Logger.getLogger(Tank.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    @Override
     protected void fire() {
+
         Shell myShell = new Shell("S2", "EnemyTank", explosionAnimImg);
         myShell.fire(barrel, direction);
     }

@@ -31,22 +31,22 @@ public class Tank {
     private final String TYPE;
     private static int serialNumber = 0;
     private final int TANK_NUMBER;
-    private final int TANK_LENGTH;
-    private final int TANK_WIDTH;
-    private final int directionSwitchPeriod;
-    private int armour;
+    protected int TANK_LENGTH;
+    protected int TANK_WIDTH;
+    private int directionSwitchPeriod;
+    protected int armour;
     protected int speed;
     private ArrayList<Particle> hull;
     protected int barrel[];
-    private int X, Y;//positions on BattleFiled(matrix)
+    protected int X, Y;//positions on BattleFiled(matrix)
     private Scanner sc = null;
-    private URL imageN, imageS, imageE, imageW;
-    private BufferedImage image;//this is image painted on BattleField
-    private BufferedImage imageNorth, imageSouth, imageEast, imageWest;
+    protected URL imageN, imageS, imageE, imageW;
+    protected BufferedImage image;//this is image painted on BattleField
+    protected BufferedImage imageNorth, imageSouth, imageEast, imageWest;
     protected BufferedImage explosionAnimImg;
     private HashMap<String, BufferedImage> directionSwitchGear;//this is directions switching gear-switcher
 
-    private int rateOfFire;
+    protected int rateOfFire;
 
     private Random randomGenerator;
     protected Direction direction;
@@ -59,15 +59,13 @@ public class Tank {
         this.TYPE = type;
         status = "active";
         TANK_NUMBER = serialNumber++;
-        TANK_LENGTH = 37;
-        TANK_WIDTH = 37;
+        setTankSize();
         this.X = X;//those are starting positions on battleField
         this.Y = Y;
         randomGenerator = new Random();
         hull = createHull();
         barrel = new int[2];
         directionSwitchGear = new HashMap();
-        directionSwitchPeriod = 1000;//3 seconds
 
         //shell explosion image
         //i load it here, one time, because it takes resources to load for every explosion different image
@@ -79,16 +77,8 @@ public class Tank {
         }
         //--
 
-        if (TYPE.equals("T1")) {
-            createT1();
-        }
-        if (TYPE.equals("T2")) {
-            createT2();
-        }
-        if (TYPE.equals("T3")) {
-            createT3();
-        }
-       
+        createTank();
+        createDirectionGear();
 
         placeTankOnBattleField();
         // engine = new Timer(speed, new TankEngine());
@@ -142,6 +132,11 @@ public class Tank {
     }
     //end of setters getters
 
+    protected void setTankSize() {
+        TANK_LENGTH = 37;
+        TANK_WIDTH = 37;
+    }
+
     protected ArrayList<Particle> createHull() {
         hull = new ArrayList();
 
@@ -166,14 +161,52 @@ public class Tank {
         return hull;
     }
 
+    private void createDirectionGear() {
+        //directions gear
+        directionSwitchGear.put("North", imageNorth);
+        directionSwitchGear.put("South", imageSouth);
+        directionSwitchGear.put("East", imageEast);
+        directionSwitchGear.put("West", imageWest);
+    }
+
+    protected void createTank() {
+        if (TYPE.equals("T1")) {
+            createT1();
+        }
+        if (TYPE.equals("T2")) {
+            createT2();
+        }
+        if (TYPE.equals("T3")) {
+            createT3();
+        }
+    }
+
     private void createT1() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        speed = 1;
+        armour = 1;
+        rateOfFire = 200;
+        directionSwitchPeriod = 500;//3 seconds
+        try {
+            // Imege of tank load.
+            imageN = this.getClass().getResource("/resources/images/T1_NORTH.png");
+            imageNorth = ImageIO.read(imageN);
+            imageS = this.getClass().getResource("/resources/images/T1_SOUTH.png");
+            imageSouth = ImageIO.read(imageS);
+            imageE = this.getClass().getResource("/resources/images/T1_EAST.png");
+            imageEast = ImageIO.read(imageE);
+            imageW = this.getClass().getResource("/resources/images/T1_WEST.png");
+            imageWest = ImageIO.read(imageW);
+
+        } catch (IOException ex) {
+            Logger.getLogger(Tank.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     private void createT2() {
         speed = 2;
         armour = 3;
         rateOfFire = 300;
+        directionSwitchPeriod = 1000;//3 seconds
         try {
             // Imege of tank load.
             imageN = this.getClass().getResource("/resources/images/T2_NORTH.png");
@@ -185,11 +218,6 @@ public class Tank {
             imageW = this.getClass().getResource("/resources/images/T2_WEST.png");
             imageWest = ImageIO.read(imageW);
 
-            //directions gear
-            directionSwitchGear.put("North", imageNorth);
-            directionSwitchGear.put("South", imageSouth);
-            directionSwitchGear.put("East", imageEast);
-            directionSwitchGear.put("West", imageWest);
         } catch (IOException ex) {
             Logger.getLogger(Tank.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -201,26 +229,21 @@ public class Tank {
         speed = 5;
         armour = 5;
         rateOfFire = 500;
+        directionSwitchPeriod = 1500;//
         try {
             // Imege of tank load.
-            imageN = this.getClass().getResource("/resources/images/T3-NORTH.png");
+            imageN = this.getClass().getResource("/resources/images/T3_NORTH.png");
             imageNorth = ImageIO.read(imageN);
-            imageS = this.getClass().getResource("/resources/images/T3-SOUTH.png");
+            imageS = this.getClass().getResource("/resources/images/T3_SOUTH.png");
             imageSouth = ImageIO.read(imageS);
-            imageE = this.getClass().getResource("/resources/images/T3-EAST.png");
+            imageE = this.getClass().getResource("/resources/images/T3_EAST.png");
             imageEast = ImageIO.read(imageE);
-            imageW = this.getClass().getResource("/resources/images/T3-WEST.png");
+            imageW = this.getClass().getResource("/resources/images/T3_WEST.png");
             imageWest = ImageIO.read(imageW);
 
-            //directions gear
-            directionSwitchGear.put("North", imageNorth);
-            directionSwitchGear.put("South", imageSouth);
-            directionSwitchGear.put("East", imageEast);
-            directionSwitchGear.put("West", imageWest);
         } catch (IOException ex) {
             Logger.getLogger(Tank.class.getName()).log(Level.SEVERE, null, ex);
         }
-
     }
 
     private void placeTankOnBattleField() {
@@ -260,25 +283,25 @@ public class Tank {
     }
 
 // turning
-    private void turnSouth() {
+    protected void turnSouth() {
         image = directionSwitchGear.get("South");//turning tank to south
         barrel[0] = X + (TANK_WIDTH - 1) / 2;
         barrel[1] = Y + TANK_LENGTH;
     }
 
-    private void turnNorth() {
+    protected void turnNorth() {
         image = directionSwitchGear.get("North");//turning tank to north
         barrel[0] = X + (TANK_WIDTH - 1) / 2;
         barrel[1] = Y;
     }
 
-    private void turnEast() {
+    protected void turnEast() {
         image = directionSwitchGear.get("East");//turning tank to north
         barrel[0] = X + TANK_LENGTH;
         barrel[1] = Y + (TANK_WIDTH - 1) / 2 + 1;
     }
 
-    private void turnWest() {
+    protected void turnWest() {
         image = directionSwitchGear.get("West");//turning tank to north
         barrel[0] = X;
         barrel[1] = Y + (TANK_WIDTH - 1) / 2 + 1;;
@@ -333,7 +356,7 @@ public class Tank {
 //canGO
 
     private boolean canGoSouth() {
-        if (Y < BattleField.matrix.length - 1 - 40) {
+        if (Y < BattleField.matrix[0].length - 1 - TANK_LENGTH) {
             for (int a = X; a < X + TANK_WIDTH; a++) {
                 Particle particle = BattleField.matrix[a][Y + TANK_LENGTH + 1];
                 if (particle != null) {
@@ -361,8 +384,8 @@ public class Tank {
     }
 
     private boolean canGoEast() {
-        if (X < BattleField.matrix[0].length - TANK_WIDTH - 1) {
-            for (int a = Y; a < Y + 36; a++) {
+        if (X < BattleField.matrix.length - TANK_WIDTH - 1) {
+            for (int a = Y; a < Y + TANK_LENGTH-1; a++) {
                 Particle particle = BattleField.matrix[X + TANK_WIDTH + 1][a];
                 if (particle != null) {
                     return false;
@@ -425,7 +448,7 @@ public class Tank {
     }
 
     private void turn() {
-        
+
         int randomDirection = randomGenerator.nextInt(6);
         if (randomDirection == 0) {
             direction = Direction.SOUTH;
