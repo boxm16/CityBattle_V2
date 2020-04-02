@@ -153,7 +153,7 @@ public class CityPlaner extends MyTank {
     }
 
     private boolean canJumpNorth() {
-        if (Y > TANK_LENGTH - 1) {
+        if (Y > TANK_LENGTH*3 - 1) {//i leave place for tanks creation place
             for (int a = X; a < X + TANK_LENGTH; a++) {
                 Particle particle = BattleField.matrix[a][Y - TANK_LENGTH];
                 if (particle != null) {

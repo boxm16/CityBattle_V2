@@ -33,7 +33,7 @@ public class BattleField extends JPanel {
     public static HashMap<Integer, Tank> tanksOnField;
     public static HashMap<Integer, Animation> explosionsList;
     public static HashMap<Integer, Block> cityPlan;
-    public static LinkedList<Shell> shells;
+    public static LinkedList<Shell> shells;//not sure if i need linkedList. Used to need, but now, i`m not sure :)
     private BufferedImage imageBrick;
     private BufferedImage imageSteel;
     private BufferedImage imageWater;
@@ -144,7 +144,7 @@ public class BattleField extends JPanel {
     public void Draw(Graphics2D g2d) {
 
         //i`m afraid of ConcurretnModificExept. so i use Iteratero insted of for-each loop 
-        //and yet it happens some time, need to find another way, syncronize or something
+        //and yet it still happens some time, need to find another way, syncronize or something
         Iterator it = BattleField.explosionsList.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry pair = (Map.Entry) it.next();
